@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { PromotionalCards } from './components/promotional-cards'
-import { GameCard } from './components/game-card'
 import { GameCategories } from './components/game-categories'
+import { GameCard } from './components/game-card'
 
 interface Game {
   id: number
@@ -52,6 +52,7 @@ export default async function Home() {
           return (
             <GameCard
               key={game.id}
+              id={game.id}
               title={game.title}
               thumbnail={game.thumbnail}
               price={price}

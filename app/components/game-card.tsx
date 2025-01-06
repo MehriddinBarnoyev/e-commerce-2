@@ -1,7 +1,12 @@
+'use client'
+
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import Image from "next/image"
+import { useRouter } from 'next/navigation'
 
 interface GameCardProps {
+  id: number
   title: string
   thumbnail: string
   price: number
@@ -10,11 +15,16 @@ interface GameCardProps {
   rating: number
 }
 
-export function GameCard({ title, thumbnail, price, originalPrice, category, rating }: GameCardProps) {
+export function GameCard({ id, title, thumbnail, price, originalPrice, category, rating }: GameCardProps) {
+  const router = useRouter()
   const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0
 
+  const handleClick = () => {
+   router.push(`/game/${id}`)
+  }
+
   return (
-    <Card className="bg-black border-gray-800">
+    <Card className="bg-black border-gray-800 cursor-pointer" onClick={handleClick}>
       <CardContent className="p-0">
         <div className="relative">
           <Image
@@ -48,6 +58,12 @@ export function GameCard({ title, thumbnail, price, originalPrice, category, rat
           )}
           <span className="text-lg font-bold text-white">{price}₽</span>
         </div>
+        <Button size="sm" onClick={(e) => {
+          e.stopPropagation()
+          handleClick()
+        }}>
+          View Details
+        </Button>
       </CardFooter>
     </Card>
   )

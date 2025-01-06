@@ -41,15 +41,12 @@ const sidebarItems = [
 export function Sidebar() {
   const pathname = usePathname();
 
-  const nameuser = localStorage.getItem("user");
-  const userObj = JSON.parse(nameuser || "{}");
-  console.log(userObj);
+
   return (
     <aside className="w-64 border-r border-zinc-800 bg-dark overflow-y-auto">
       <div className="flex h-14 items-center border-b border-zinc-800 px-4">
         <Link href="/admin" className="flex items-center gap-2 font-semibold">
           <Package className="h-6 w-6" />
-          <span>{userObj.firstName}</span>
         </Link>
       </div>
       <ScrollArea className="flex-1 px-2 py-4">

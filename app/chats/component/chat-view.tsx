@@ -91,7 +91,7 @@ const ChatView = ({ chat, messages, onSendMessage }: ChatViewProps) => {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
           />
-          <Button type="submit">
+          <Button type="submit" className='bg-blue-600 hover:bg-blue-700'>
             <Send className="h-4 w-4" />
           </Button>
         </form>
