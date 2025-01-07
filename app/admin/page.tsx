@@ -1,3 +1,4 @@
+import { PromotionalCards } from "../components/promotional-cards"
 import { Sidebar } from "./components/sidebar"
 
 

@@ -1,9 +1,12 @@
 'use client'
 
+import { useState } from 'react'
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { useRouter } from 'next/navigation'
+import { useCart } from '../contexts/CartContext'
+import { Check } from 'lucide-react'
 
 interface GameCardProps {
   id: number
@@ -17,10 +20,19 @@ interface GameCardProps {
 
 export function GameCard({ id, title, thumbnail, price, originalPrice, category, rating }: GameCardProps) {
   const router = useRouter()
+  const { addToCart } = useCart()
+  const [isAdded, setIsAdded] = useState(false)
   const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0
 
   const handleClick = () => {
-   router.push(`/game/${id}`)
+    router.push(`/game/${id}`)
+  }
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    addToCart({ id, title, price, quantity: 1, thumbnail })
+    setIsAdded(true)
+    setTimeout(() => setIsAdded(false), 2000) // Reset after 2 seconds
   }
 
   return (
@@ -58,11 +70,13 @@ export function GameCard({ id, title, thumbnail, price, originalPrice, category,
           )}
           <span className="text-lg font-bold text-white">{price}₽</span>
         </div>
-        <Button size="sm" onClick={(e) => {
-          e.stopPropagation()
-          handleClick()
-        }}>
-          View Details
+        <Button 
+          size="sm" 
+          onClick={handleAddToCart}
+          className={isAdded ? "bg-green-500 hover:bg-green-600" : ""}
+        >
+          {isAdded ? <Check className="h-4 w-4 mr-2" /> : null}
+          {isAdded ? "Added" : "Add to Cart"}
         </Button>
       </CardFooter>
     </Card>
