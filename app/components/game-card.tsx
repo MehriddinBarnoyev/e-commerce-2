@@ -73,7 +73,7 @@ export function GameCard({ id, title, thumbnail, price, originalPrice, category,
         <Button 
           size="sm" 
           onClick={handleAddToCart}
-          className={isAdded ? "bg-green-500 hover:bg-green-600" : ""}
+          className={isAdded ? "bg-green-500 text-white hover:bg-green-600" : "text-white" }
         >
           {isAdded ? <Check className="h-4 w-4 mr-2" /> : null}
           {isAdded ? "Added" : "Add to Cart"}

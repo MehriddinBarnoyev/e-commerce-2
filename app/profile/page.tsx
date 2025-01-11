@@ -1,164 +1,218 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Menu, Share2 } from 'lucide-react';
+import {
+  Menu,
+  Share2,
+  Star,
+  ChevronRight,
+  LogOut,
+  ShoppingCart,
+  Plus,
+  History,
+} from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "../contexts/AuthContext";
+import { useCart } from "../contexts/CartContext";
+import { GamerLoader } from "../components/gamer-loader";
 
-function generatePrice() {
-  const basePrice = Math.floor(Math.random() * 2000) + 99
-  const hasDiscount = Math.random() > 0.5
-  const discountedPrice = hasDiscount 
-    ? Math.floor(basePrice * (0.6 + Math.random() * 0.3))
-    : basePrice
-  return {
-    price: discountedPrice,
-    originalPrice: hasDiscount ? basePrice : undefined
-  }
+function formatDate(dateString: string) {
+  return new Date(dateString).toLocaleDateString("ru-RU", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 }
 
 export default function ProfilePage() {
   const { user, logout } = useAuth();
+  const { cartItems, getTotalPrice } = useCart();
   const router = useRouter();
-  const [balance, setBalance] = useState({ price: 0, originalPrice: undefined });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!user) {
-      router.push('/login');
+      router.push("/login");
     } else {
-      setBalance(generatePrice());
+      setIsLoading(false);
     }
   }, [user, router]);
 
   const handleLogout = () => {
     logout();
-    router.push('/login');
+    router.push("/login");
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-black">
+        <GamerLoader />
+      </div>
+    );
+  }
+
   if (!user) {
-    return null; // or a loading spinner
+    return null;
   }
 
   return (
-    <div className=" bg-black text-white">
+    <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-800">
         <div className="flex items-center gap-2">
-          <Menu className="h-6 w-6" />
-          <h1 className="text-lg font-medium">{user.username}</h1>
+          <h1 className="text-2xl font-bold">{user.username}</h1>
         </div>
-        <Share2 className="h-6 w-6" />
       </div>
 
       {/* Balance Card */}
-      <Card
-        className="mx-4 mt-4 bg-gray-800/50 border-gray-700"
-        style={{ width: "40vh" }}
-      >
-        <div className="p-4 flex items-center gap-2 text-white">
-          <div className="bg-blue-500 p-1.5 rounded">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M20 12H4"
-              />
-            </svg>
+      <Card className="mx-4 mt-4 bg-black border-gray-700">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="bg-blue-500 p-2 rounded-full">
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm text-gray-400">Баланс</p>
+                <span className="text-2xl font-bold">{`${
+                  user ? user.balance : 0
+                } ₽`}</span>
+              </div>
+            </div>
+            <Link href="/topup">
+              <Button variant="outline" size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Пополнить
+              </Button>
+            </Link>
           </div>
-          <span className="text-lg">{`${balance.price} ₽`}</span>
-          <svg
-            className="w-4 h-4 text-gray-400 ml-auto"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </div>
+        </CardContent>
       </Card>
 
       {/* Profile Info */}
       <div className="p-4 flex items-center gap-4">
-        <Avatar className="h-16 w-16 bg-green-600">
+        <Avatar className="h-20 w-20 border-2 border-blue-500">
+          <AvatarImage
+            src={`https://api.dicebear.com/6.x/initials/svg?seed=${user.username}`}
+          />
           <AvatarFallback>
             {user.username.charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
         <div>
-          <h2 className="text-xl font-medium">{user.username}</h2>
-          <div className="flex items-center gap-1 text-gray-400 text-sm">
-            {"★★★★★".split("").map((star, i) => (
-              <span key={i} className="opacity-20">
-                {star}
-              </span>
+          <h2 className="text-2xl font-bold">{user.username}</h2>
+          <div className="flex items-center gap-1 text-gray-400 text-sm mt-1">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star key={star} className="w-4 h-4 fill-current text-gray-600" />
             ))}
             <span className="ml-1">нет отзывов</span>
           </div>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-gray-400 mt-1">
             на Playerok с ноября 2024
           </p>
         </div>
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="purchases" className="w-full">
-        <TabsList className="w-full justify-start gap-2 bg-transparent p-4">
+      <Tabs defaultValue="cart" className="w-full mt-4">
+        <TabsList className="w-full justify-start gap-2 bg-gray-800 p-1 rounded-lg">
           <TabsTrigger
-            value="items"
-            className="bg-gray-800 data-[state=active]:bg-gray-700"
+            value="cart"
+            className="flex-1 py-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white rounded"
           >
-            Мои товары 0
+            Корзина {cartItems.length}
           </TabsTrigger>
           <TabsTrigger
-            value="purchases"
-            className="bg-blue-600 text-white data-[state=active]:bg-blue-700"
+            value="history"
+            className="flex-1 py-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white rounded"
           >
-            Покупки 0
-          </TabsTrigger>
-          <TabsTrigger
-            value="sales"
-            className="bg-gray-800 data-[state=active]:bg-gray-700"
-          >
-            Продажи 0
+            История покупок
           </TabsTrigger>
         </TabsList>
 
-        {/* Empty State */}
-        <div className="flex flex-col items-center justify-center p-8 text-center">
-          <span className="text-6xl mb-4">😕</span>
-          <h3 className="text-xl font-medium mb-2">Нет покупок</h3>
-          <p className="text-gray-400 mb-6">Давайте что-нибудь выберем</p>
-          <Link href={"/"}>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white w-full max-w-md">
-              Выбрать игру/приложение
+        <TabsContent value="cart" className="mt-4">
+          {cartItems.length === 0 ? (
+            <EmptyState
+              emoji="🛒"
+              title="Корзина пуста"
+              description="Добавьте товары в корзину"
+              buttonText="Выбрать игру/приложение"
+              buttonHref="/"
+            />
+          ) : (
+            <div className="space-y-4 p-4">
+              {cartItems.map((item) => (
+                <Card key={item.id} className="bg-black border-gray-700">
+                  <CardContent className="p-4 flex items-center gap-4">
+                    <img
+                      src={item.thumbnail}
+                      alt={item.title}
+                      className="w-16 h-16 object-cover rounded"
+                    />
+                    <div className="flex-1">
+                      <h3 className="font-semibold">{item.title}</h3>
+                      <p className="text-sm text-gray-400">
+                        {item.quantity} x {item.price} ₽
+                      </p>
+                    </div>
+                    <p className="font-bold">{item.quantity * item.price} ₽</p>
+                  </CardContent>
+                </Card>
+              ))}
+              <div className="flex justify-between items-center mt-4">
+                <span className="text-xl font-bold">Итого:</span>
+                <span className="text-xl font-bold">{getTotalPrice()} ₽</span>
+              </div>
+              <Link href="/checkout">
+                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white mt-10">
+                  Перейти к оплате
+                </Button>
+              </Link>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="history" className="mt-4">
+          <Link href="/history">
+            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+              <History className="mr-2 h-4 w-4" />
+              Просмотреть историю покупок
             </Button>
           </Link>
-        </div>
+        </TabsContent>
       </Tabs>
-
-      {/* Logout Button */}
-      <div className="p-4">
-        <Button onClick={handleLogout} className="w-full bg-red-600 hover:bg-red-700 text-white">
-          Выйти
-        </Button>
-      </div>
     </div>
   );
 }
 
+function EmptyState({ emoji, title, description, buttonText, buttonHref }) {
+  return (
+    <div className="flex flex-col items-center justify-center p-8 text-center">
+      <span className="text-6xl mb-4">{emoji}</span>
+      <h3 className="text-xl font-medium mb-2">{title}</h3>
+      <p className="text-gray-400 mb-6">{description}</p>
+      <Link href={buttonHref}>
+        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+          {buttonText}
+        </Button>
+      </Link>
+    </div>
+  );
+}

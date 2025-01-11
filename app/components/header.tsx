@@ -66,7 +66,7 @@ export function Header() {
             <Button variant="ghost" size="icon" className="text-gray-300 hover:text-white">
               <ShoppingCart className="h-5 w-5" />
             </Button>
-            {cartCount > 0 && (
+            {cartCount > 0 && user && (
               <Badge variant="destructive" className="absolute -top-2 -right-2">
                 {cartCount}
               </Badge>

@@ -18,7 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${inter.className} bg-black min-h-screen`}>
+      <body className={`${inter.className} bg-black min-h-screen`} suppressHydrationWarning>
         <AuthProvider>
           <CartProvider>
             <Header />

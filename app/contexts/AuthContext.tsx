@@ -8,6 +8,7 @@ type User = {
   username: string
   email: string
   role: 'user' | 'admin'
+  balance: number
 } | null
 
 type AuthContextType = {
@@ -15,6 +16,7 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>
   logout: () => void
   register: (username: string, email: string, password: string) => Promise<void>
+  updateBalance: (amount: number) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -36,8 +38,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const foundUser = users.find((u: User) => u.email === email)
       
       if (foundUser) {
-        setUser(foundUser)
-        localStorage.setItem('user', JSON.stringify(foundUser))
+        const userWithBalance = { ...foundUser, balance: foundUser.balance || 0 }
+        setUser(userWithBalance)
+        localStorage.setItem('user', JSON.stringify(userWithBalance))
       } else {
         throw new Error('Invalid email or password')
       }
@@ -58,7 +61,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         username,
         email,
         password,
-        role: 'user'
+        role: 'user',
+        balance: 0
       })
       const newUser = response.data
       setUser(newUser)
@@ -69,8 +73,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
+  const updateBalance = (amount: number) => {
+    if (user) {
+      const updatedUser = { ...user, balance: user.balance + amount }
+      setUser(updatedUser)
+      localStorage.setItem('user', JSON.stringify(updatedUser))
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, register }}>
+    <AuthContext.Provider value={{ user, login, logout, register, updateBalance }}>
       {children}
     </AuthContext.Provider>
   )
